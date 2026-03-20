@@ -1,14 +1,15 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { Navigation } from '@/components/Navigation'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'WindFlow - AI Wind Farm Analytics',
+  description: 'Advanced AI-powered dashboard for real-time wind farm monitoring and predictive analytics',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -35,8 +36,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased">
+    <html lang="en" suppressHydrationWarning>
+      <body className="font-sans antialiased dark">
+        <Navigation />
         {children}
         <Analytics />
       </body>
