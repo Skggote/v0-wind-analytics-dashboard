@@ -26,9 +26,9 @@ export default function DataExportPage() {
       { date: '27-05-2025', site: 'A', acCap: 29.4, rundlyEnergy: 480.25, actEnergy: 317.18, budgRev: 0.12, actRev: 0.99, tpltPlf: 64.59, actPlf: 58.95, totWS: 18.96, actWS: 7.79, commPA: 90.32, techPA: 56.78, variance: -0.010 },
       { date: '28-05-2025', site: 'B', acCap: 29.4, rundlyEnergy: 418.43, actEnergy: 299.29, budgRev: 0.12, actRev: 0.90, tpltPlf: 64.78, actPlf: 34.75, totWS: 9.79, actWS: 6.58, commPA: 94.39, techPA: 63.61, variance: -0.040 },
       { date: '29-05-2025', site: 'B', acCap: 29.4, rundlyEnergy: 364.81, actEnergy: 213.99, budgRev: 0.11, actRev: 0.80, tpltPlf: 57.58, actPlf: 33.75, totWS: 8.72, actWS: 6.30, commPA: 90.23, techPA: 78.18, variance: -0.020 },
-      { date: '30-05-2025', site: 'B', acCap: 29.4, rundlyEnergy: 344.91, actEnergy: 298.79, budgRev: 0.18, actRev: 0.15, tpltPlf: 54.44, actPlf: 70.89, totWS: 8.71, actWS: 9.58, commPA: 90.03, techPA: 96.19, variance: '+0.050 },
-      { date: '31-05-2025', site: 'B', acCap: 29.4, rundlyEnergy: 347.88, actEnergy: 547.20, budgRev: 0.18, actRev: 0.36, tpltPlf: 54.91, actPlf: 95.36, totWS: 8.69, actWS: 9.19, commPA: 90.51, techPA: 93.41, variance: '+0.050 },
-      { date: '01-05-2025', site: 'C', acCap: 33, rundlyEnergy: 425.54, actEnergy: 596.78, budgRev: 0.12, actRev: 0.17, tpltPlf: 53.73, actPlf: 75.34, totWS: 8.43, actWS: 8.80, commPA: 100.89, techPA: 100.88, variance: '+0.050 },
+      { date: '30-05-2025', site: 'B', acCap: 29.4, rundlyEnergy: 344.91, actEnergy: 298.79, budgRev: 0.18, actRev: 0.15, tpltPlf: 54.44, actPlf: 70.89, totWS: 8.71, actWS: 9.58, commPA: 90.03, techPA: 96.19, variance: 0.050 },
+      { date: '31-05-2025', site: 'B', acCap: 29.4, rundlyEnergy: 347.88, actEnergy: 547.20, budgRev: 0.18, actRev: 0.36, tpltPlf: 54.91, actPlf: 95.36, totWS: 8.69, actWS: 9.19, commPA: 90.51, techPA: 93.41, variance: 0.050 },
+      { date: '01-05-2025', site: 'C', acCap: 33, rundlyEnergy: 425.54, actEnergy: 596.78, budgRev: 0.12, actRev: 0.17, tpltPlf: 53.73, actPlf: 75.34, totWS: 8.43, actWS: 8.80, commPA: 100.89, techPA: 100.88, variance: 0.050 },
     ];
   };
 
@@ -53,7 +53,7 @@ export default function DataExportPage() {
       { turbine: 'WTG-A#3', site: 'A', faultType: 'Yaw System Fault', description: 'Yaw motor controller malfunction caus...', start: '25-05-2025 09:00', end: '25-05-2025 18:45', duration: 9.75, loss: -38.500, status: 'Resolved' },
       { turbine: 'WTG-A#2', site: 'A', faultType: 'Blade Pitch Error', description: 'Pitch angle servo stuck in intermediate...', start: '26-05-2025 06:20', end: '27-05-2025 03:45', duration: 21.42, loss: -92.680, status: 'Resolved' },
       { turbine: 'WTG-B#1', site: 'B', faultType: 'Generator Bearing Fault', description: 'Elevated vibration levels on generator D...', start: '28-05-2025 11:00', end: '29-05-2025 00:00', duration: 13, loss: -67.200, status: 'Resolved' },
-      { turbine: 'WTG-B#2', site: 'B', faultType: 'Converter Fault', description: 'Power converter IGBT module failure', start: '28-05-2025 15:30', end: '28-05-2025 23:08', duration: 7.63, loss: -1, loss: -35.460, status: 'Resolved' },
+      { turbine: 'WTG-B#2', site: 'B', faultType: 'Converter Fault', description: 'Power converter IGBT module failure', start: '28-05-2025 15:30', end: '28-05-2025 23:08', duration: 7.63, loss: -35.460, status: 'Resolved' },
       { turbine: 'WTG-B#3', site: 'B', faultType: 'Grid Connection Loss', description: 'Voltage dip causing grid relay trip', start: '30-05-2025 01:00', end: '30-05-2025 04:30', duration: 3.5, loss: -12.400, status: 'Resolved' },
       { turbine: 'WTG-C#1', site: 'C', faultType: 'Cooling System Failure', description: 'Coolant pump failure in generator', start: '30-05-2025 14:15', end: '31-05-2025 08:00', duration: 17.75, loss: -82.050, status: 'Resolved' },
       { turbine: 'WTG-A#1', site: 'A', faultType: 'Anemometer Malfunction', description: 'Wind speed sensor providing erratic mea...', start: '27-05-2025 14:00', end: '27-05-2025 18:30', duration: 4.5, loss: -15.200, status: 'Resolved' },
