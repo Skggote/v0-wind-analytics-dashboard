@@ -4,12 +4,17 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { KPICard } from '@/components/KPICard';
 import { generateFarms, generateTurbines } from '@/lib/mockData';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { AlertTriangle, Zap, MapPin } from 'lucide-react';
 
 export default function FleetPage() {
+  const [isClient, setIsClient] = useState(false);
   const farms = useMemo(() => generateFarms(), []);
   const [selectedFarm, setSelectedFarm] = useState<string>('farm-001');
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   
   const turbines = useMemo(() => {
     const farm = farms.find(f => f.id === selectedFarm);
@@ -56,6 +61,16 @@ export default function FleetPage() {
         return 'Unknown';
     }
   };
+
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="h-96 bg-card border border-border rounded-lg animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">

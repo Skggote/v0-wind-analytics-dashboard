@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,9 +10,14 @@ import { generateSites, generateFarms, generateSCADAData, calculateKPIs } from '
 import { ChevronRight, Search, MapPin, Zap, TrendingUp } from 'lucide-react';
 
 export default function SitesPage() {
+  const [isClient, setIsClient] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const sites = generateSites();
   const farms = generateFarms();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const filteredSites = useMemo(() => {
     return sites.filter(site =>
@@ -45,6 +50,16 @@ export default function SitesPage() {
       };
     });
   }, [filteredSites]);
+
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-background pt-20 px-4 md:px-8 pb-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="h-96 bg-card border border-border rounded-lg animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pt-20 px-4 md:px-8 pb-8">

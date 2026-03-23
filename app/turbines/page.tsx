@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,8 +9,13 @@ import { generateFarms, generateTurbines, generateSCADAData, calculateKPIs, gene
 import { AlertTriangle, Activity, Zap, Wind, Thermometer } from 'lucide-react';
 
 export default function TurbinesPage() {
+  const [isClient, setIsClient] = useState(false);
   const [selectedFarm, setSelectedFarm] = useState('farm-001');
   const [selectedTurbine, setSelectedTurbine] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const farms = generateFarms();
   const turbines = useMemo(() => generateTurbines(selectedFarm, 45), [selectedFarm]);
@@ -56,6 +61,16 @@ export default function TurbinesPage() {
     if (health > 60) return 'Degrading';
     return 'At Risk';
   };
+
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-background pt-20 px-4 md:px-8 pb-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="h-96 bg-card border border-border rounded-lg animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pt-20 px-4 md:px-8 pb-8">

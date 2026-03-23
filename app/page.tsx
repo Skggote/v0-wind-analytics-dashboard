@@ -13,6 +13,14 @@ import {
   TurbinePerformanceScatter,
 } from '@/components/DashboardCharts';
 import {
+  EnergyGenerationTrends,
+  RevenueComparison,
+  CumulativeGenerationTracker,
+  DailyPerformanceVariance,
+  AvailabilityHeatmap,
+  CircularProgress,
+} from '@/components/OverviewCharts';
+import {
   generateFarms,
   generateTurbines,
   generateSCADAData,
@@ -129,6 +137,128 @@ export default function Dashboard() {
 
           {/* OVERVIEW TAB */}
           <TabsContent value="overview" className="space-y-6">
+            {/* Real-Time Overview Section */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Zap className="w-5 h-5 text-primary" />
+                <h2 className="text-xl font-semibold">Real-Time Overview</h2>
+              </div>
+              
+              {/* KPI Cards Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <KPICard
+                  title="Total Generation"
+                  value={2681.7}
+                  unit="MWh"
+                  format="number"
+                  description="vs budget 3111.39 MWh"
+                  status="warning"
+                />
+                <KPICard
+                  title="Total Revenue"
+                  value={0.77}
+                  unit="C€"
+                  format="number"
+                  description="vs budget 0.9 C€"
+                  status="warning"
+                />
+                <KPICard
+                  title="Avg PLF"
+                  value={44.93}
+                  unit="%"
+                  format="percentage"
+                  description="vs budget 53.07 %"
+                  status="normal"
+                />
+                <KPICard
+                  title="Avg Wind Speed"
+                  value={7.34}
+                  unit="m/s"
+                  format="number"
+                  description="vs budget 8.53 m/s"
+                  status="warning"
+                />
+              </div>
+
+              {/* Circular Progress Indicators */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <Card className="p-6 flex flex-col items-center justify-center bg-card border border-border">
+                  <CircularProgress 
+                    label="Commercial Availability" 
+                    value={90.03} 
+                    target={100}
+                    unit="%"
+                    color="#06b6d4"
+                  />
+                </Card>
+                <Card className="p-6 flex flex-col items-center justify-center bg-card border border-border">
+                  <CircularProgress 
+                    label="Technical Availability" 
+                    value={62.19} 
+                    target={100}
+                    unit="%"
+                    color="#eab308"
+                  />
+                </Card>
+                <Card className="p-6 flex flex-col items-center justify-center bg-card border border-border">
+                  <CircularProgress 
+                    label="Budget Achievement" 
+                    value={86.2} 
+                    target={100}
+                    unit="%"
+                    color="#06b6d4"
+                  />
+                </Card>
+              </div>
+
+              {/* Trend Charts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <EnergyGenerationTrends data={[
+                  { name: '24-05-2025', budgeted: 150, actual: 120 },
+                  { name: '25-05-2025', budgeted: 160, actual: 145 },
+                  { name: '26-05-2025', budgeted: 155, actual: 180 },
+                  { name: '27-05-2025', budgeted: 170, actual: 280 },
+                  { name: '28-05-2025', budgeted: 165, actual: 320 },
+                  { name: '29-05-2025', budgeted: 175, actual: 380 },
+                  { name: '01-06-2025', budgeted: 180, actual: 400 },
+                ]} />
+                <RevenueComparison data={[
+                  { name: '24-05-2025', budgeted: 0.07, actual: 0.05 },
+                  { name: '25-05-2025', budgeted: 0.08, actual: 0.07 },
+                  { name: '26-05-2025', budgeted: 0.077, actual: 0.09 },
+                  { name: '27-05-2025', budgeted: 0.085, actual: 0.14 },
+                  { name: '28-05-2025', budgeted: 0.082, actual: 0.16 },
+                  { name: '29-05-2025', budgeted: 0.088, actual: 0.19 },
+                  { name: '01-06-2025', budgeted: 0.09, actual: 0.20 },
+                ]} />
+              </div>
+
+              {/* Cumulative and Variance Charts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <CumulativeGenerationTracker data={[
+                  { name: '24-05-2025', budgetedCum: 150, actualCum: 120 },
+                  { name: '25-05-2025', budgetedCum: 310, actualCum: 265 },
+                  { name: '26-05-2025', budgetedCum: 465, actualCum: 445 },
+                  { name: '27-05-2025', budgetedCum: 635, actualCum: 725 },
+                  { name: '28-05-2025', budgetedCum: 800, actualCum: 1045 },
+                  { name: '29-05-2025', budgetedCum: 975, actualCum: 1425 },
+                  { name: '01-06-2025', budgetedCum: 1155, actualCum: 1825 },
+                ]} />
+                <DailyPerformanceVariance data={[
+                  { name: '24-05-2025', variance: -20 },
+                  { name: '25-05-2025', variance: -9 },
+                  { name: '26-05-2025', variance: 16 },
+                  { name: '27-05-2025', variance: 65 },
+                  { name: '28-05-2025', variance: 37 },
+                  { name: '29-05-2025', variance: 47 },
+                  { name: '01-06-2025', variance: 35 },
+                ]} />
+              </div>
+
+              {/* Availability Heatmap */}
+              <AvailabilityHeatmap data={[]} />
+            </div>
+
             {/* Resource Efficiency Section */}
             <div>
               <div className="flex items-center gap-2 mb-4">

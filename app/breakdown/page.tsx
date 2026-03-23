@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, ScatterChart, Scatter } from 'recharts';
@@ -8,8 +8,13 @@ import { generateFarms, generateTurbines, generateSCADAData, calculateKPIs, gene
 import { Filter, Download, TrendingDown } from 'lucide-react';
 
 export default function BreakdownPage() {
+  const [isClient, setIsClient] = useState(false);
   const [selectedFarm, setSelectedFarm] = useState<string>('farm-001');
   const [breakdownBy, setBreakdownBy] = useState<'turbine' | 'weather' | 'loss'>('loss');
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const farms = generateFarms();
   const turbines = useMemo(() => generateTurbines(selectedFarm, 45), [selectedFarm]);
@@ -62,6 +67,16 @@ export default function BreakdownPage() {
     }
     return data;
   }, []);
+
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-background pt-20 px-4 md:px-8 pb-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="h-96 bg-card border border-border rounded-lg animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pt-20 px-4 md:px-8 pb-8">
