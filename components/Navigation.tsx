@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, MessageSquare, Settings, Menu, X } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Settings, Menu, X, BarChart3 } from 'lucide-react';
 import { useState } from 'react';
 
 export function Navigation() {
@@ -14,6 +14,7 @@ export function Navigation() {
 
   const navItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/sites', label: 'Sites', icon: LayoutDashboard },
     { href: '/turbines', label: 'Turbines', icon: LayoutDashboard },
     { href: '/breakdown', label: 'Breakdown', icon: LayoutDashboard },
