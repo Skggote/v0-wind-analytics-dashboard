@@ -14,10 +14,12 @@ export function Navigation() {
 
   const navItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/fleet', label: 'Fleet', icon: LayoutDashboard },
+    { href: '/sites', label: 'Sites', icon: LayoutDashboard },
+    { href: '/turbines', label: 'Turbines', icon: LayoutDashboard },
+    { href: '/breakdown', label: 'Breakdown', icon: LayoutDashboard },
     { href: '/maintenance', label: 'Maintenance', icon: LayoutDashboard },
     { href: '/optimization', label: 'Optimization', icon: LayoutDashboard },
-    { href: '/analytics', label: 'Analytics', icon: LayoutDashboard },
+    { href: '/reports', label: 'Reports', icon: LayoutDashboard },
     { href: '/copilot', label: 'AI Co-Pilot', icon: MessageSquare },
   ];
 

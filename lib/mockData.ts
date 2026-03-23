@@ -18,6 +18,47 @@ export interface Farm {
   turbineCount: number;
   totalCapacity: number;
   status: 'operational' | 'degraded' | 'offline';
+  latitude: number;
+  longitude: number;
+  operatingDate: string;
+  designCapacity: number;
+  powerCurve: number; // MW rating
+}
+
+export interface Site {
+  id: string;
+  name: string;
+  location: string;
+  country: string;
+  farms: string[]; // farm IDs
+  totalCapacity: number;
+  totalTurbines: number;
+  operatingDate: string;
+  owner: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface WeatherData {
+  timestamp: string;
+  turbineId: string;
+  windSpeed: number;
+  windDirection: number;
+  temperature: number;
+  humidity: number;
+  pressure: number;
+  precipitation: number;
+  cloudCover: number;
+}
+
+export interface EnergyLoss {
+  timestamp: string;
+  turbineId: string;
+  category: 'environmental' | 'technical' | 'operational';
+  type: string;
+  value: number; // MWh lost
+  percentage: number; // % of expected production
+  description: string;
 }
 
 export interface SCADAData {
@@ -71,6 +112,11 @@ export function generateFarms(): Farm[] {
       turbineCount: 45,
       totalCapacity: 135,
       status: 'operational',
+      latitude: 46.92,
+      longitude: -109.52,
+      operatingDate: '2018-06-15',
+      designCapacity: 135,
+      powerCurve: 3.0,
     },
     {
       id: 'farm-002',
@@ -79,6 +125,11 @@ export function generateFarms(): Farm[] {
       turbineCount: 32,
       totalCapacity: 96,
       status: 'operational',
+      latitude: 35.27,
+      longitude: -120.74,
+      operatingDate: '2019-03-20',
+      designCapacity: 96,
+      powerCurve: 3.0,
     },
     {
       id: 'farm-003',
@@ -87,6 +138,11 @@ export function generateFarms(): Farm[] {
       turbineCount: 58,
       totalCapacity: 174,
       status: 'degraded',
+      latitude: 33.19,
+      longitude: -101.92,
+      operatingDate: '2016-11-10',
+      designCapacity: 174,
+      powerCurve: 3.0,
     },
     {
       id: 'farm-004',
@@ -95,6 +151,43 @@ export function generateFarms(): Farm[] {
       turbineCount: 28,
       totalCapacity: 84,
       status: 'operational',
+      latitude: 39.55,
+      longitude: -105.18,
+      operatingDate: '2017-08-05',
+      designCapacity: 84,
+      powerCurve: 3.0,
+    },
+  ];
+}
+
+// Generate mock sites (portfolio level)
+export function generateSites(): Site[] {
+  return [
+    {
+      id: 'site-001',
+      name: 'Northern Portfolio',
+      location: 'Montana & Colorado',
+      country: 'USA',
+      farms: ['farm-001', 'farm-004'],
+      totalCapacity: 219,
+      totalTurbines: 73,
+      operatingDate: '2016-11-10',
+      owner: 'Green Energy Corp',
+      latitude: 43.04,
+      longitude: -107.29,
+    },
+    {
+      id: 'site-002',
+      name: 'Western Coastal Complex',
+      location: 'California & Texas',
+      country: 'USA',
+      farms: ['farm-002', 'farm-003'],
+      totalCapacity: 270,
+      totalTurbines: 90,
+      operatingDate: '2017-03-15',
+      owner: 'Clean Power Solutions',
+      latitude: 34.23,
+      longitude: -111.33,
     },
   ];
 }
@@ -340,4 +433,83 @@ export function generateAnomalies(turbineCount: number = 100) {
   }
 
   return anomalies;
+}
+
+// Generate energy loss breakdown
+export function generateEnergyLosses(turbineId: string, hoursBack: number = 24): EnergyLoss[] {
+  const losses: EnergyLoss[] = [];
+  const now = Date.now();
+  
+  const lossTypes = {
+    environmental: [
+      { type: 'High wind shutdown', basePercent: 2 },
+      { type: 'Low wind period', basePercent: 5 },
+      { type: 'Extreme weather', basePercent: 1 },
+    ],
+    technical: [
+      { type: 'Gearbox efficiency loss', basePercent: 2 },
+      { type: 'Blade surface contamination', basePercent: 3 },
+      { type: 'Bearing friction loss', basePercent: 1 },
+    ],
+    operational: [
+      { type: 'Planned maintenance', basePercent: 4 },
+      { type: 'Yaw optimization', basePercent: 1 },
+      { type: 'Sensor calibration', basePercent: 0.5 },
+    ],
+  };
+
+  for (let h = hoursBack; h >= 0; h--) {
+    const timestamp = new Date(now - h * 60 * 60 * 1000);
+    
+    // Random loss events
+    if (Math.random() < 0.3) {
+      const category = Object.keys(lossTypes)[Math.floor(Math.random() * 3)] as keyof typeof lossTypes;
+      const typeOption = lossTypes[category][Math.floor(Math.random() * lossTypes[category].length)];
+      const percentage = typeOption.basePercent + (Math.random() - 0.5) * typeOption.basePercent;
+      
+      losses.push({
+        timestamp: timestamp.toISOString(),
+        turbineId,
+        category,
+        type: typeOption.type,
+        value: (3 * percentage / 100 * 24),
+        percentage: Math.max(0, Math.min(100, percentage)),
+        description: `${typeOption.type} caused ${percentage.toFixed(1)}% loss`,
+      });
+    }
+  }
+
+  return losses;
+}
+
+// Generate weather data
+export function generateWeatherData(turbineId: string, hoursBack: number = 24): WeatherData[] {
+  const data: WeatherData[] = [];
+  const now = Date.now();
+
+  for (let h = hoursBack; h >= 0; h--) {
+    const timestamp = new Date(now - h * 60 * 60 * 1000);
+    const hour = timestamp.getHours();
+    
+    // Diurnal temperature cycle
+    const baseTemp = 15 + Math.sin((hour - 12) / 24 * Math.PI * 2) * 8;
+    
+    // Wind patterns
+    const timeOfDay = Math.abs(Math.sin((hour - 12) * Math.PI / 24));
+    const baseWindSpeed = 8 + timeOfDay * 4;
+    
+    data.push({
+      timestamp: timestamp.toISOString(),
+      turbineId,
+      windSpeed: Math.max(2, baseWindSpeed + (Math.random() - 0.5) * 3),
+      windDirection: Math.floor(Math.random() * 360),
+      temperature: baseTemp + (Math.random() - 0.5) * 4,
+      humidity: 40 + Math.random() * 50,
+      pressure: 1013 + (Math.random() - 0.5) * 20,
+      precipitation: Math.random() < 0.2 ? Math.random() * 5 : 0,
+      cloudCover: Math.floor(Math.random() * 100),
+    });
+  }
+
+  return data;
 }

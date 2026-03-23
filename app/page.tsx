@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardFilters } from '@/components/DashboardFilters';
 import { KPICard } from '@/components/KPICard';
@@ -28,11 +28,17 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 export default function Dashboard() {
+  const [isClient, setIsClient] = useState(false);
   const [selectedFarm, setSelectedFarm] = useState<string>('farm-001');
   const [dateRange, setDateRange] = useState<'today' | '7days' | '30days' | '90days' | 'custom'>('7days');
   const [aggregation, setAggregation] = useState<'hour' | 'day' | 'week'>('day');
   const [turbineFilter, setTurbineFilter] = useState<string>('all');
   const [selectedTurbine, setSelectedTurbine] = useState<string | null>(null);
+
+  // Ensure client-side only rendering to avoid hydration mismatch with random data
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Generate mock data
   const farms = useMemo(() => generateFarms(), []);
@@ -64,6 +70,17 @@ export default function Dashboard() {
   }, [turbines, turbineFilter]);
 
   const currentFarm = farms.find(f => f.id === selectedFarm);
+
+  // Prevent hydration mismatch by only rendering dynamic content on client
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="h-96 bg-card border border-border rounded-lg animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
