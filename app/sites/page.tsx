@@ -1,17 +1,18 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { Badge } from '@/components/ui/badge';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { generateSites, generateFarms, generateSCADAData, calculateKPIs } from '@/lib/mockData';
-import { ChevronRight, Search, MapPin, Zap, TrendingUp } from 'lucide-react';
+import { ChevronRight, MapPin, Zap, Wind, TrendingUp, TrendingDown } from 'lucide-react';
 
 export default function SitesPage() {
+  const router = useRouter();
   const [isClient, setIsClient] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSite, setSelectedSite] = useState<string | null>(null);
   const sites = generateSites();
   const farms = generateFarms();
 
@@ -19,18 +20,13 @@ export default function SitesPage() {
     setIsClient(true);
   }, []);
 
-  const filteredSites = useMemo(() => {
-    return sites.filter(site =>
-      site.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      site.location.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery]);
-
   const siteMetrics = useMemo(() => {
-    return filteredSites.map(site => {
+    return sites.map(site => {
       const siteFarms = farms.filter(f => site.farms.includes(f.id));
       let totalCapacityFactor = 0;
       let totalAvailability = 0;
+      let commercialAvail = 0;
+      let technicalAvail = 0;
       let turbineCount = 0;
 
       siteFarms.forEach(farm => {
@@ -43,13 +39,33 @@ export default function SitesPage() {
         }
       });
 
+      // Simulate revenue and wind speed
+      const generation = (totalCapacityFactor / turbineCount) * site.totalCapacity;
+      const revenue = (generation / 100) * 0.35; // 0.35 Cr per 100 MWh
+      const avgWindSpeed = 6.5 + Math.random() * 2;
+      commercialAvail = 80 + Math.random() * 20;
+      technicalAvail = 70 + Math.random() * 25;
+
       return {
         ...site,
+        generation: Math.round(generation),
+        revenue: revenue.toFixed(2),
         avgCapacityFactor: totalCapacityFactor / turbineCount,
         avgAvailability: totalAvailability / turbineCount,
+        avgWindSpeed: avgWindSpeed.toFixed(1),
+        commercialAvail: Math.round(commercialAvail),
+        technicalAvail: Math.round(technicalAvail),
+        variance: (Math.random() * 400 - 200).toFixed(1),
       };
     });
-  }, [filteredSites]);
+  }, []);
+
+  // Data for comparison chart
+  const comparisonData = siteMetrics.map(site => ({
+    name: site.name,
+    budgeted: site.totalCapacity * 365 * 0.35, // Budgeted annual energy
+    actual: site.generation,
+  }));
 
   if (!isClient) {
     return (
@@ -66,115 +82,162 @@ export default function SitesPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Sites Directory</h1>
-          <p className="text-muted-foreground">Manage and monitor all wind energy sites in your portfolio</p>
+          <h1 className="text-3xl font-bold tracking-tight mb-2">Site Comparison</h1>
+          <p className="text-muted-foreground">
+            Cross-site performance benchmarking with energy, revenue, and availability metrics.
+          </p>
         </div>
 
-        {/* Search */}
-        <div className="mb-8">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Search sites by name or location..."
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
+        {/* Comparison Chart */}
+        <Card className="p-6 mb-8 bg-card/50 border-border/50">
+          <h3 className="text-lg font-semibold mb-4">Site-wise Energy Comparison</h3>
+          <p className="text-sm text-muted-foreground mb-6">
+            Actual vs budgeted energy generation across all wind farm sites
+          </p>
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart data={comparisonData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="name" stroke="var(--muted-foreground)" />
+              <YAxis stroke="var(--muted-foreground)" label={{ value: 'MWh', angle: -90, position: 'insideLeft' }} />
+              <Tooltip
+                contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}
+                formatter={(value) => `${(value as number).toFixed(0)} MWh`}
+              />
+              <Bar dataKey="budgeted" fill="#3b82f6" name="Budget Energy (MWh)" />
+              <Bar dataKey="actual" fill="#06b6d4" name="Actual Energy (MWh)" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
 
-        {/* Sites Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {siteMetrics.map(site => (
-            <Link key={site.id} href={`/sites/${site.id}`}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col">
-                <div className="flex-1 p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h2 className="text-2xl font-bold text-foreground">{site.name}</h2>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                        <MapPin className="w-4 h-4" />
-                        {site.location}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-muted-foreground">Owner</div>
-                      <div className="text-sm font-semibold text-foreground">{site.owner}</div>
-                    </div>
+        {/* Site Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {siteMetrics.map(site => {
+            const varianceNum = parseFloat(site.variance);
+            const isPositive = varianceNum >= 0;
+
+            return (
+              <Card
+                key={site.id}
+                className="p-6 bg-card/50 border-border/50 hover:border-border cursor-pointer transition-all hover:shadow-lg"
+                onClick={() => router.push(`/sites/${site.id}?name=${encodeURIComponent(site.name)}&capacity=${site.totalCapacity}&generation=${site.generation}&revenue=${site.revenue}`)}
+              >
+                {/* Header with Status */}
+                <div className="flex items-center justify-between mb-4 pb-4 border-b border-border">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: isPositive ? '#10b981' : '#ef4444' }}></div>
+                    <h3 className="text-lg font-semibold">{site.name}</h3>
                   </div>
+                  <Badge
+                    variant="outline"
+                    className={
+                      isPositive
+                        ? 'bg-green-500/10 text-green-600 border-green-500/30'
+                        : 'bg-red-500/10 text-red-600 border-red-500/30'
+                    }
+                  >
+                    {isPositive ? '+' : ''}{site.variance}%
+                  </Badge>
+                </div>
 
-                  {/* Key Metrics */}
-                  <div className="grid grid-cols-3 gap-4 mb-6 pt-4 border-t border-border">
-                    <div>
-                      <div className="text-xs text-muted-foreground mb-1">Capacity</div>
-                      <div className="text-lg font-bold text-primary">{site.totalCapacity} MW</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-muted-foreground mb-1">Turbines</div>
-                      <div className="text-lg font-bold text-primary">{site.totalTurbines}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-muted-foreground mb-1">Farms</div>
-                      <div className="text-lg font-bold text-primary">{site.farms.length}</div>
-                    </div>
-                  </div>
-
-                  {/* Performance Metrics */}
+                {/* Main Metrics */}
+                <div className="space-y-4 mb-6">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-card border border-border rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-muted-foreground">Capacity Factor</span>
-                        <TrendingUp className="w-4 h-4 text-accent" />
-                      </div>
-                      <div className="text-lg font-bold text-foreground">{site.avgCapacityFactor.toFixed(1)}%</div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Generation</p>
+                      <p className="text-2xl font-bold">{site.generation}</p>
+                      <p className="text-xs text-muted-foreground">MWh</p>
                     </div>
-                    <div className="bg-card border border-border rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-muted-foreground">Availability</span>
-                        <Zap className="w-4 h-4 text-accent" />
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Revenue</p>
+                      <p className="text-2xl font-bold">₹{site.revenue}</p>
+                      <p className="text-xs text-muted-foreground">Cr.</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-yellow-500" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Avg. PLF</p>
+                        <p className="text-sm font-semibold">{site.avgCapacityFactor.toFixed(1)}%</p>
                       </div>
-                      <div className="text-lg font-bold text-foreground">{site.avgAvailability.toFixed(1)}%</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Wind className="w-4 h-4 text-blue-500" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Avg. Wind Speed</p>
+                        <p className="text-sm font-semibold">{site.avgWindSpeed} m/s</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Availability Bars */}
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-xs font-medium">Commercial Avail.</p>
+                      <p className="text-xs font-semibold">{site.commercialAvail}%</p>
+                    </div>
+                    <div className="w-full h-2 bg-border rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-cyan-500 rounded-full"
+                        style={{ width: `${site.commercialAvail}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-xs font-medium">Technical Avail.</p>
+                      <p className="text-xs font-semibold">{site.technicalAvail}%</p>
+                    </div>
+                    <div className="w-full h-2 bg-border rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-cyan-500 rounded-full"
+                        style={{ width: `${site.technicalAvail}%` }}
+                      ></div>
                     </div>
                   </div>
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t border-border flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Operating since {new Date(site.operatingDate).getFullYear()}</span>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                <div className="mt-6 pt-4 border-t border-border flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    Updated: {new Date().toLocaleDateString()}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                 </div>
               </Card>
-            </Link>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Empty State */}
-        {filteredSites.length === 0 && (
-          <Card className="p-12 text-center">
-            <h3 className="text-lg font-semibold text-foreground mb-2">No sites found</h3>
-            <p className="text-muted-foreground">Try adjusting your search criteria</p>
-          </Card>
-        )}
-
-        {/* Portfolio Summary */}
-        <Card className="mt-8 p-6 bg-gradient-to-br from-primary/5 to-accent/5 border border-border/50">
-          <h3 className="text-lg font-semibold text-foreground mb-6">Portfolio Summary</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Summary Stats */}
+        <Card className="p-6 bg-card/50 border-border/50">
+          <h3 className="text-lg font-semibold mb-6">Portfolio Overview</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div>
-              <div className="text-sm text-muted-foreground mb-1">Total Sites</div>
-              <div className="text-3xl font-bold text-primary">{siteMetrics.length}</div>
+              <p className="text-sm text-muted-foreground mb-2">Total Sites</p>
+              <p className="text-3xl font-bold text-primary">{siteMetrics.length}</p>
             </div>
             <div>
-              <div className="text-sm text-muted-foreground mb-1">Total Capacity</div>
-              <div className="text-3xl font-bold text-primary">{siteMetrics.reduce((s, site) => s + site.totalCapacity, 0)} MW</div>
+              <p className="text-sm text-muted-foreground mb-2">Total Capacity</p>
+              <p className="text-3xl font-bold text-primary">
+                {siteMetrics.reduce((sum, s) => sum + s.totalCapacity, 0)} MW
+              </p>
             </div>
             <div>
-              <div className="text-sm text-muted-foreground mb-1">Total Turbines</div>
-              <div className="text-3xl font-bold text-primary">{siteMetrics.reduce((s, site) => s + site.totalTurbines, 0)}</div>
+              <p className="text-sm text-muted-foreground mb-2">Total Generation</p>
+              <p className="text-3xl font-bold text-primary">
+                {siteMetrics.reduce((sum, s) => sum + s.generation, 0)} MWh
+              </p>
             </div>
             <div>
-              <div className="text-sm text-muted-foreground mb-1">Avg Capacity Factor</div>
-              <div className="text-3xl font-bold text-primary">{(siteMetrics.reduce((s, site) => s + site.avgCapacityFactor, 0) / siteMetrics.length).toFixed(1)}%</div>
+              <p className="text-sm text-muted-foreground mb-2">Avg. Capacity Factor</p>
+              <p className="text-3xl font-bold text-primary">
+                {(siteMetrics.reduce((sum, s) => sum + s.avgCapacityFactor, 0) / siteMetrics.length).toFixed(1)}%
+              </p>
             </div>
           </div>
         </Card>

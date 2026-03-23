@@ -36,6 +36,7 @@ export function DashboardFilters({
   onTurbineFilterChange,
 }: DashboardFiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [healthStatus, setHealthStatus] = useState('all');
 
   return (
     <Card className="p-4 mb-6">
@@ -121,7 +122,7 @@ export function DashboardFilters({
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-muted-foreground">Health Status</label>
-                  <Select defaultValue="all" onValueChange={() => {}}>
+                  <Select value={healthStatus} onValueChange={setHealthStatus}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select health" />
                     </SelectTrigger>
