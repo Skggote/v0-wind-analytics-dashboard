@@ -121,7 +121,7 @@ export function DashboardFilters({
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-muted-foreground">Health Status</label>
-                  <Select defaultValue="all">
+                  <Select defaultValue="all" onValueChange={() => {}}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select health" />
                     </SelectTrigger>
