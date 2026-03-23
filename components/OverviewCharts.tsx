@@ -18,8 +18,6 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { Card } from '@/components/ui/card';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
 
 // Energy Generation Trends Chart
 export function EnergyGenerationTrends({ data }: { data: any[] }) {
@@ -204,29 +202,51 @@ export function AvailabilityHeatmap({ data }: { data: any[] }) {
   );
 }
 
-// Circular Progress Indicator
+// Circular Progress Indicator - SVG based (no dependencies)
 export function CircularProgress({ label, value, target, unit, color }: { label: string; value: number; target: number; unit: string; color: string }) {
-  const percentage = (value / target) * 100;
+  const percentage = Math.min((value / target) * 100, 100);
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
   
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div style={{ width: 100, height: 100 }}>
-        <CircularProgressbar
-          value={Math.min(percentage, 100)}
-          text={`${value.toFixed(1)}%`}
-          styles={buildStyles({
-            rotation: 0.25,
-            strokeLinecap: 'round',
-            textSize: '16px',
-            pathTransitionDuration: 0.5,
-            pathColor: color,
-            textColor: color,
-            trailColor: 'var(--border)',
-          })}
-        />
+    <div className="flex flex-col items-center gap-3">
+      <div className="relative w-32 h-32 flex items-center justify-center">
+        <svg className="w-full h-full" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
+          {/* Background circle */}
+          <circle
+            cx="60"
+            cy="60"
+            r={radius}
+            fill="none"
+            stroke="var(--border)"
+            strokeWidth="6"
+          />
+          {/* Progress circle */}
+          <circle
+            cx="60"
+            cy="60"
+            r={radius}
+            fill="none"
+            stroke={color}
+            strokeWidth="6"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+          />
+        </svg>
+        {/* Center text */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-lg font-bold text-foreground">{value.toFixed(1)}%</p>
+          </div>
+        </div>
       </div>
-      <p className="text-xs font-semibold text-center text-foreground">{label}</p>
-      <p className="text-xs text-muted-foreground text-center">Target: {target}{unit}</p>
+      <div className="text-center">
+        <p className="text-xs font-semibold text-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground">Target: {target}{unit}</p>
+      </div>
     </div>
   );
 }
